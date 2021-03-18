@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.LruCache;
 
 /**
@@ -92,5 +93,9 @@ public class FastClickUtils {
                 }
             }
         }
+    }
+
+    public static void print(){
+        Log.e(DEFAULT_TAG,"hahaha");
     }
 }

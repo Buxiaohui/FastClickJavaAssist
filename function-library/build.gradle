@@ -1,28 +1,23 @@
+/*
+ * Copyright (C) 2020 Baidu, Inc. All Rights Reserved.
+ */
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
 }
-
-apply plugin: 'com.buxiaohui.qrc'
-
-qrcConfig {
-    annotation  "com.buxiaohui.annotation.QuickRepeatClick"
-    annotationTag  "tag"
-    annotationTimeInterval  "timeInterval"
-    insertCodeTemplate "if (com.buxiaohui.fastclickjavaassist.FastClickUtils.isFastClick(\"tag\",timeIntervalL)) return;"
-}
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "com.buxiaohui.fastclickjavaassist"
         minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
@@ -38,19 +33,16 @@ android {
 }
 
 dependencies {
+
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'androidx.navigation:navigation-fragment:2.3.1'
-    implementation 'androidx.navigation:navigation-ui:2.3.1'
     implementation project(path: ':function-annotation')
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
-    implementation project(path: ':function-library')
-    implementation project(path: ':lib')
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
-
-
-
+repositories {
+    mavenCentral()
+}

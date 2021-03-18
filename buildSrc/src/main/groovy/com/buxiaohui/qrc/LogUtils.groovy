@@ -6,7 +6,7 @@ package com.buxiaohui.qrc
 class LogUtils {
     static boolean E = true
     static boolean I = true
-    static boolean D = false
+    static boolean D = true
 
     static void logE(String log) {
         if (!E) {

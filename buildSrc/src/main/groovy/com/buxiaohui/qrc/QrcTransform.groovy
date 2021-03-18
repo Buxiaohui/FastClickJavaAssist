@@ -5,12 +5,16 @@ package com.buxiaohui.qrc
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
+import javassist.ClassPool
+import javassist.CtClass
+import javassist.CtMethod
 import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Project
 
 class QrcTransform extends Transform {
 
-    private static final String DEFAULT_NAME = "QuickRepeatClickTransformGro"
+    private static final String DEFAULT_NAME = "QrcTransform"
+    private static final boolean DEBUG_TEST_INSERT_GLIDE_BEFORE = false
 
 
     private Project project
@@ -74,19 +78,29 @@ class QrcTransform extends Transform {
 
         injectGro.appendClassPath(project.android.bootClasspath[0].toString())
 
+
         for (TransformInput input : transformInvocation.inputs) {
             if (null == input) {
                 continue
             }
+
             //**** 1.先把所有路径appendClassPath
             for (JarInput jarInput : input.jarInputs) {
                 injectGro.appendClassPath(jarInput.file.absolutePath)
+                if (jarInput.file.absolutePath.contains("glide")) {
+                    // LogUtils.logD("appendClassPath->jarInput:" + jarInput.file.absolutePath)
+                }
             }
             for (DirectoryInput directoryInput : input.directoryInputs) {
                 injectGro.appendClassPath(directoryInput.file.absolutePath)
+                if (directoryInput.file.absolutePath.contains("glide")) {
+                    // LogUtils.logD("appendClassPath->directoryInput:" + jdirectoryInput.file.absolutePath)
+                }
             }
+        }
+        testInsertGlide()
 
-
+        for (TransformInput input : transformInvocation.inputs) {
             //***** 2.再进行织入操作
             for (DirectoryInput directoryInput : input.directoryInputs) {
                 // 获取output目录
@@ -106,6 +120,23 @@ class QrcTransform extends Transform {
                 def dest = outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
                 injectGro.injectJar(jarInput.file.absolutePath, dest.absolutePath)
             }
+        }
+    }
+
+    private void testInsertGlide() {
+        if (!DEBUG_TEST_INSERT_GLIDE_BEFORE) {
+            return
+        }
+        try {
+            ClassPool classPool = ClassPool.getDefault();
+            CtClass ctClass = classPool.get("com.bumptech.glide.load.data.HttpUrlFetcher")
+            LogUtils.logD("get,HttpUrlFetcher,ctClass:" + ctClass)
+            CtMethod ctMethod = ctClass.getDeclaredMethod("loadData")
+            LogUtils.logD("get,HttpUrlFetcher,ctMethod:" + ctMethod)
+            ctMethod.insertAt(59, "new com.buxiaohui.fastclickjavaassist.DataListener().onReady(result);")
+            ctClass.writeFile()
+        } catch (Exception e) {
+            LogUtils.logD("e:" + e)
         }
     }
 }
